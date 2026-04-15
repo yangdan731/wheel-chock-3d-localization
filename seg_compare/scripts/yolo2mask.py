@@ -37,9 +37,9 @@ script_dir = os.path.dirname(os.path.abspath(__file__))
 project_root = os.path.dirname(os.path.dirname(script_dir))
 
 # 构建路径
-txt_dir = os.path.join(project_root, "wheelchock_dataset", "labels", "test")
-image_dir = os.path.join(project_root, "seg_compare", "test_image")
-output_dir = os.path.join(project_root, "seg_compare", "test_gt")
+txt_dir = os.path.join(project_root, "wheelchock_dataset", "labels", "train")
+image_dir = os.path.join(project_root, "seg_compare", "test_image/train")
+output_dir = os.path.join(project_root, "seg_compare", "test_gt/train")
 os.makedirs(output_dir, exist_ok=True)
 
 # 遍历 txt 文件

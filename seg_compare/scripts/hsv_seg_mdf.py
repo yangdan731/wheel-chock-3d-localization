@@ -19,7 +19,6 @@ def segment_color(image):
     kernel = np.ones((5,5), np.uint8)
     mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel, iterations=1)
     mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel, iterations=2)
-    # 取最大轮廓区域（可选）
     contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     if contours:
         largest = max(contours, key=cv2.contourArea)
@@ -36,38 +35,7 @@ def segment_color(image):
     return mask
 
 # ------------------------------
-# 批量处理颜色方法
-# ------------------------------
-# 获取当前脚本所在目录的父目录（即 seg_compare 目录）
-script_dir = os.path.dirname(os.path.abspath(__file__))      # scripts/
-base_dir = os.path.dirname(script_dir)                      # seg_compare/
-
-# 构建路径
-input_dir = os.path.join(base_dir, "test_image")
-gt_dir = os.path.join(base_dir, "test_gt")
-color_out_dir = os.path.join(base_dir, "pred_color")
-os.makedirs(color_out_dir, exist_ok=True)
-
-color_times = []
-for fname in os.listdir(input_dir):
-    if not fname.lower().endswith(('.png','.jpg','.jpeg')):
-        continue
-    img_path = os.path.join(input_dir, fname)
-    img = cv2.imread(img_path)
-    if img is None:
-        continue
-    start = time.perf_counter()
-    mask = segment_color(img)
-    elapsed = time.perf_counter() - start
-    color_times.append(elapsed)
-    out_path = os.path.join(color_out_dir, fname)
-    cv2.imwrite(out_path, mask)
-    print(f"Color method: {fname} done, time={elapsed*1000:.2f}ms")
-
-print(f"Color method avg time: {np.mean(color_times)*1000:.2f} ms")
-
-# ------------------------------
-# 评估颜色方法
+# 评估函数
 # ------------------------------
 def calc_metrics(gt, pred):
     gt_bin = gt > 0
@@ -79,26 +47,69 @@ def calc_metrics(gt, pred):
     f1 = f1_score(gt_bin.flatten(), pred_bin.flatten(), zero_division=0)
     return iou, pa, prec, rec, f1
 
-color_metrics = []
-for fname in os.listdir(gt_dir):
-    if not fname.lower().endswith('.png'):
-        continue
-    gt_path = os.path.join(gt_dir, fname)
-    pred_path = os.path.join(color_out_dir, fname)
-    if not os.path.exists(pred_path):
-        continue
-    gt = cv2.imread(gt_path, cv2.IMREAD_GRAYSCALE)
-    pred = cv2.imread(pred_path, cv2.IMREAD_GRAYSCALE)
-    if gt is None or pred is None:
-        continue
-    color_metrics.append(calc_metrics(gt, pred))
+# ------------------------------
+# 批量处理与评估函数（不输出每张图片时间）
+# ------------------------------
+def evaluate_split(img_dir, gt_dir, out_dir, split_name):
+    os.makedirs(out_dir, exist_ok=True)
+    times = []
+    metrics = []
+    for fname in os.listdir(img_dir):
+        if not fname.lower().endswith(('.png','.jpg','.jpeg')):
+            continue
+        img_path = os.path.join(img_dir, fname)
+        img = cv2.imread(img_path)
+        if img is None:
+            continue
+        start = time.perf_counter()
+        mask = segment_color(img)
+        elapsed = time.perf_counter() - start
+        times.append(elapsed)
+        out_path = os.path.join(out_dir, fname)
+        cv2.imwrite(out_path, mask)
+        gt_path = os.path.join(gt_dir, fname)
+        if os.path.exists(gt_path):
+            gt = cv2.imread(gt_path, cv2.IMREAD_GRAYSCALE)
+            if gt is not None:
+                metrics.append(calc_metrics(gt, mask))
+    if times:
+        avg_time = np.mean(times) * 1000
+        print(f"{split_name} average time: {avg_time:.2f} ms")
+    else:
+        print(f"{split_name}: No images found.")
+    if metrics:
+        mean = np.mean(metrics, axis=0)
+        std = np.std(metrics, axis=0)
+        print(f"\n=== Color {split_name} Evaluation ===")
+        print(f"IoU: {mean[0]:.4f} ± {std[0]:.4f}")
+        print(f"Pixel Acc: {mean[1]:.4f} ± {std[1]:.4f}")
+        print(f"Precision: {mean[2]:.4f} ± {std[2]:.4f}")
+        print(f"Recall: {mean[3]:.4f} ± {std[3]:.4f}")
+        print(f"F1: {mean[4]:.4f} ± {std[4]:.4f}")
+    else:
+        print(f"{split_name}: No ground truth found, skipping metrics.")
 
-if color_metrics:
-    color_mean = np.mean(color_metrics, axis=0)
-    color_std = np.std(color_metrics, axis=0)
-    print("\n=== Color Threshold Method ===")
-    print(f"mIoU: {color_mean[0]:.4f} ± {color_std[0]:.4f}")
-    print(f"Pixel Acc: {color_mean[1]:.4f} ± {color_std[1]:.4f}")
-    print(f"Precision: {color_mean[2]:.4f} ± {color_std[2]:.4f}")
-    print(f"Recall: {color_mean[3]:.4f} ± {color_std[3]:.4f}")
-    print(f"F1: {color_mean[4]:.4f} ± {color_std[4]:.4f}")
+# ------------------------------
+# 主程序
+# ------------------------------
+if __name__ == "__main__":
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    base_dir = os.path.dirname(script_dir)
+
+    train_img_dir = os.path.join(base_dir, "test_image", "train")
+    train_gt_dir = os.path.join(base_dir, "test_gt", "train")
+    train_out_dir = os.path.join(base_dir, "pred_color", "train")
+
+    test_img_dir = os.path.join(base_dir, "test_image", "test")
+    test_gt_dir = os.path.join(base_dir, "test_gt", "test")
+    test_out_dir = os.path.join(base_dir, "pred_color", "test")
+
+    print("=" * 50)
+    print("Processing Training Set")
+    print("=" * 50)
+    evaluate_split(train_img_dir, train_gt_dir, train_out_dir, "Train")
+
+    print("\n" + "=" * 50)
+    print("Processing Test Set")
+    print("=" * 50)
+    evaluate_split(test_img_dir, test_gt_dir, test_out_dir, "Test")

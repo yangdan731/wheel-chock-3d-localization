@@ -5,7 +5,6 @@ import time
 from ultralytics import YOLO
 from sklearn.metrics import jaccard_score, precision_score, recall_score, f1_score
 
-# 定义评估函数（与步骤1一致）
 def calc_metrics(gt, pred):
     gt_bin = gt > 0
     pred_bin = pred > 0
@@ -16,78 +15,76 @@ def calc_metrics(gt, pred):
     f1 = f1_score(gt_bin.flatten(), pred_bin.flatten(), zero_division=0)
     return iou, pa, prec, rec, f1
 
-# ------------------------------
-# 配置路径
-# ------------------------------
-# 获取当前脚本所在目录（scripts/）
-script_dir = os.path.dirname(os.path.abspath(__file__))
-# 向上两级到达 formal_project 根目录
-project_root = os.path.dirname(os.path.dirname(script_dir))  # .../formal_project
-
-# 基于项目根目录构建各路径
-input_dir = os.path.join(project_root, "seg_compare", "test_image")
-gt_dir = os.path.join(project_root, "seg_compare", "test_gt")
-yolo_out_dir = os.path.join(project_root, "seg_compare", "pred_yolo")
-model_path = os.path.join(project_root, "yolov8_model", "wheelchock5_best.pt")
-
-os.makedirs(yolo_out_dir, exist_ok=True)
-
-# ------------------------------
-# 加载YOLO模型
-# ------------------------------
-model = YOLO(model_path)
-
-# ------------------------------
-# 批量处理并计时
-# ------------------------------
-yolo_times = []
-for fname in os.listdir(input_dir):
-    if not fname.lower().endswith(('.png','.jpg','.jpeg')):
-        continue
-    img_path = os.path.join(input_dir, fname)
-    img = cv2.imread(img_path)
-    if img is None:
-        continue
-    start = time.perf_counter()
-    results = model(img, verbose=False)
-    if results[0].masks is None:
-        mask = np.zeros((img.shape[0], img.shape[1]), dtype=np.uint8)
+def evaluate_split(model, img_dir, gt_dir, out_dir, split_name):
+    """对指定数据集进行推理和评估"""
+    os.makedirs(out_dir, exist_ok=True)
+    times = []
+    metrics = []
+    for fname in os.listdir(img_dir):
+        if not fname.lower().endswith(('.png','.jpg','.jpeg')):
+            continue
+        img_path = os.path.join(img_dir, fname)
+        img = cv2.imread(img_path)
+        if img is None:
+            continue
+        start = time.perf_counter()
+        results = model(img, verbose=False)
+        if results[0].masks is None:
+            mask = np.zeros((img.shape[0], img.shape[1]), dtype=np.uint8)
+        else:
+            mask = results[0].masks.data[0].cpu().numpy()
+            mask = (mask > 0.5).astype(np.uint8) * 255
+            mask = cv2.resize(mask, (img.shape[1], img.shape[0]), interpolation=cv2.INTER_NEAREST)
+        elapsed = time.perf_counter() - start
+        times.append(elapsed)
+        out_path = os.path.join(out_dir, fname)
+        cv2.imwrite(out_path, mask)
+        # 如果有对应的真实掩码，计算指标
+        gt_path = os.path.join(gt_dir, fname)
+        if os.path.exists(gt_path):
+            gt = cv2.imread(gt_path, cv2.IMREAD_GRAYSCALE)
+            if gt is not None:
+                metrics.append(calc_metrics(gt, mask))
+    if times:
+        avg_time = np.mean(times) * 1000
+        print(f"{split_name} average time: {avg_time:.2f} ms")
     else:
-        mask = results[0].masks.data[0].cpu().numpy()
-        mask = (mask > 0.5).astype(np.uint8) * 255
-        # 将掩码缩放到原图尺寸
-        mask = cv2.resize(mask, (img.shape[1], img.shape[0]), interpolation=cv2.INTER_NEAREST)
-    elapsed = time.perf_counter() - start
-    yolo_times.append(elapsed)
-    out_path = os.path.join(yolo_out_dir, fname)
-    cv2.imwrite(out_path, mask)
-    print(f"YOLO: {fname} done, time={elapsed*1000:.2f}ms")
+        print(f"{split_name}: No images found.")
+    if metrics:
+        mean = np.mean(metrics, axis=0)
+        std = np.std(metrics, axis=0)
+        print(f"\n=== YOLO {split_name} Evaluation ===")
+        print(f"IoU: {mean[0]:.4f} ± {std[0]:.4f}")
+        print(f"Pixel Acc: {mean[1]:.4f} ± {std[1]:.4f}")
+        print(f"Precision: {mean[2]:.4f} ± {std[2]:.4f}")
+        print(f"Recall: {mean[3]:.4f} ± {std[3]:.4f}")
+        print(f"F1: {mean[4]:.4f} ± {std[4]:.4f}\n")
+    else:
+        print(f"{split_name}: No ground truth found, skipping metrics.")
 
-print(f"YOLO average time: {np.mean(yolo_times)*1000:.2f} ms")
+if __name__ == "__main__":
+    # 获取项目根目录
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    project_root = os.path.dirname(os.path.dirname(script_dir))
 
-# ------------------------------
-# 评估YOLO方法
-# ------------------------------
-yolo_metrics = []
-for fname in os.listdir(gt_dir):
-    if not fname.lower().endswith('.png'):
-        continue
-    gt_path = os.path.join(gt_dir, fname)
-    pred_path = os.path.join(yolo_out_dir, fname)
-    if not os.path.exists(pred_path):
-        continue
-    gt = cv2.imread(gt_path, cv2.IMREAD_GRAYSCALE)
-    pred = cv2.imread(pred_path, cv2.IMREAD_GRAYSCALE)
-    if gt is None or pred is None:
-        continue
-    yolo_metrics.append(calc_metrics(gt, pred))
+    # 测试集路径
+    test_img_dir = os.path.join(project_root, "seg_compare", "test_image", "test")
+    test_gt_dir = os.path.join(project_root, "seg_compare", "test_gt", "test")
+    test_out_dir = os.path.join(project_root, "seg_compare", "pred_yolo", "test")
 
-if yolo_metrics:
-    yolo_mean = np.mean(yolo_metrics, axis=0)
-    yolo_std = np.std(yolo_metrics, axis=0)
-    print("\n=== YOLOv8-seg Evaluation ===")
-    print(f"mIoU: {yolo_mean[0]:.4f} ± {yolo_std[0]:.4f}")
-    print(f"Pixel Acc: {yolo_mean[1]:.4f} ± {yolo_std[1]:.4f}")
-    print(f"Precision: {yolo_mean[2]:.4f} ± {yolo_std[2]:.4f}")
-    print(f"Recall: {yolo_mean[3]:.4f} ± {yolo_std[3]:.4f}")
-    print(f"F1: {yolo_mean[4]:.4f} ± {yolo_std[4]:.4f}")
+    # 训练集路径（需要预先准备真实掩码）
+    train_img_dir = os.path.join(project_root, "seg_compare", "test_image", "train")
+    train_gt_dir = os.path.join(project_root, "seg_compare", "test_gt", "train")
+    train_out_dir = os.path.join(project_root, "seg_compare", "pred_yolo", "train")
+
+    model_path = os.path.join(project_root, "yolov8_model", "wheelchock5_best.pt")
+    model = YOLO(model_path)
+
+    # 评估训练集（如果真实掩码存在）
+    if os.path.exists(train_img_dir) and os.path.exists(train_gt_dir):
+        evaluate_split(model, train_img_dir, train_gt_dir, train_out_dir, "Train")
+    else:
+        print("训练集或真实掩码目录不存在，跳过训练集评估。")
+
+    # 评估测试集
+    evaluate_split(model, test_img_dir, test_gt_dir, test_out_dir, "Test")
