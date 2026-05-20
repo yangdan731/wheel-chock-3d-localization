@@ -1,4 +1,4 @@
-path: /kaggle/input/datasets/yyyyyangdan/wheelchock7/wheelchock_lab_grass_loco_dataset
+path: /kaggle/input/datasets/yyyyyangdan/wheelchock19/wheelchock_dataset
 train: images/train
 val: images/val
 test: images/test

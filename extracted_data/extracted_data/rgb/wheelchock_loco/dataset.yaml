@@ -1,7 +1,0 @@
-path: /kaggle/input/datasets/yyyyyangdan/wheelchock_loco/wheelchock_loco
-train: images/train
-val: images/val
-test:
-
-names:
-    0: wheelchock

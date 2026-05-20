@@ -1,6 +1,14 @@
 gitignore
 
+__pycache__/
+*.pyc
 #分割结果可视化
 visualization/
 #师兄颜色阈值原代码
 hsv_seg.py
+# 输出目录
+output/
+poses.csv
+# 提取的数据
+test_data/
+extracted_data/

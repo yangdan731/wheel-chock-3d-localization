@@ -1,7 +1,0 @@
-path: \\?\D:\GraduationProjectCode\formal_project\extracted_data\extracted_data2\rgb\test\YOLODataset
-train: images/train
-val: images/val
-test:
-
-names:
-    0: wheelchock
