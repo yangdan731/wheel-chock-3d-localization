@@ -37,13 +37,13 @@ script_dir = os.path.dirname(os.path.abspath(__file__))
 project_root = os.path.dirname(os.path.dirname(os.path.dirname(script_dir)))
 
 # 构建路径
-txt_dir = os.path.join(project_root, "wheelchock_dataset", "labels", "train")
-image_dir = os.path.join(project_root, "wheelchock_dataset", "images/train")
+txt_dir = os.path.join(project_root, "dataset/wheelchock_dataset", "labels", "train")
+image_dir = os.path.join(project_root, "dataset/wheelchock_dataset", "images/train")
 output_dir = os.path.join(project_root, "eval", "seg_compare", "test_gt/train")
 os.makedirs(output_dir, exist_ok=True)
 
-# txt_dir = os.path.join(project_root, "wheelchock_dataset", "labels", "val")
-# image_dir = os.path.join(project_root, "wheelchock_dataset", "images/val")
+# txt_dir = os.path.join(project_root, "dataset/wheelchock_dataset", "labels", "val")
+# image_dir = os.path.join(project_root, "dataset/wheelchock_dataset", "images/val")
 # output_dir = os.path.join(project_root, "eval", "seg_compare", "test_gt/val")
 # os.makedirs(output_dir, exist_ok=True)
 

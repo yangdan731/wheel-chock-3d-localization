@@ -68,12 +68,12 @@ if __name__ == "__main__":
     project_root = os.path.dirname(os.path.dirname(os.path.dirname(script_dir)))
 
     # 测试集路径
-    test_img_dir = os.path.join(project_root, "wheelchock_dataset", "images", "val")
+    test_img_dir = os.path.join(project_root, "dataset/wheelchock_dataset", "images", "val")
     test_gt_dir = os.path.join(project_root, "eval", "seg_compare", "test_gt", "val")
     test_out_dir = os.path.join(project_root, "eval", "seg_compare", "pred_yolo", "val")
 
     # 训练集路径（需要预先准备真实掩码）
-    train_img_dir = os.path.join(project_root, "wheelchock_dataset", "images", "train")
+    train_img_dir = os.path.join(project_root, "dataset/wheelchock_dataset", "images", "train")
     train_gt_dir = os.path.join(project_root, "eval", "seg_compare", "test_gt", "train")
     train_out_dir = os.path.join(project_root, "eval", "seg_compare", "pred_yolo", "train")
 

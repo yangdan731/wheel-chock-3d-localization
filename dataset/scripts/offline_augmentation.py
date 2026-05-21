@@ -11,10 +11,10 @@ from tqdm import tqdm
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
 # ==================== 配置参数 ====================
-INPUT_IMG_DIR = "../../wheelchock_dataset/images/train"  # 原始训练集图像目录
-INPUT_LABEL_DIR = "../../wheelchock_dataset/labels/train"  # 原始标注文件目录（txt）
-OUTPUT_IMG_DIR = "../../wheelchock_dataset_augmented/images/train"  # 增强后图像输出目录
-OUTPUT_LABEL_DIR = "../../wheelchock_dataset_augmented/labels/train"  # 增强后标注输出目录
+INPUT_IMG_DIR = "../wheelchock_dataset/images/train"  # 原始训练集图像目录
+INPUT_LABEL_DIR = "../wheelchock_dataset/labels/train"  # 原始标注文件目录（txt）
+OUTPUT_IMG_DIR = "../wheelchock_dataset_augmented/images/train"  # 增强后图像输出目录
+OUTPUT_LABEL_DIR = "../wheelchock_dataset_augmented/labels/train"  # 增强后标注输出目录
 # NEGATIVE_SAMPLE_DIR = "path/to/red_objects"  # 可选：负样本图片目录（红色物体，不生成标注）
 
 NUM_AUG_PER_IMAGE = 5  # 每张原始图像生成几个增强版本

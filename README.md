@@ -14,34 +14,28 @@ formal_project/
 │   ├── run_img.py                  # CLI：从 PNG 帧推理
 │   └── run_bag.py                  # CLI：从 .bag 视频流直接推理
 │
-├── data_tools/                     # 数据提取脚本（待补充）
-│
 ├── dataset/
+│   ├── wheelchock_dataset/         # YOLOv8-seg 训练数据集
+│   │   ├── images/train/  images/val/
+│   │   ├── labels/train/  labels/val/
+│   │   └── dataset.yaml
+│   ├── wheelchock_dataset_augmented/  # 增强后的训练数据
 │   └── scripts/
 │       ├── offline_augmentation.py # albumentations 离线增强
 │       ├── paste_aug.py            # 负样本生成 (OpenCV)
 │       └── paste_image.py          # 负样本生成 (PIL)
 │
-├── wheelchock_dataset/             # YOLOv8-seg 训练数据集
-│   ├── images/train/  images/val/
-│   ├── labels/train/  labels/val/
-│   └── dataset.yaml
-│
-├── wheelchock_dataset_augmented/   # 增强后的训练数据
-│
 ├── models/                         # 训练好的模型权重
 │   └── best_aug.pt
 │
-├── eval/seg_compare/               # HSV颜色阈值 vs YOLOv8-seg 对比实验
-│   ├── test_image/  test_gt/
-│   ├── pred_color/  pred_yolo/
-│   └── scripts/
-│       ├── hsv_seg.py              # 颜色阈值分割 + 评估
-│       ├── yolov8_seg.py           # YOLO 批量推理 + 评估
-│       ├── yolo2mask.py            # YOLO txt → 掩码 PNG
-│       └── compare_vis.py          # 并排对比可视化
-│
-└── legacy/                         # 保留的旧脚本
+└── eval/seg_compare/               # HSV颜色阈值 vs YOLOv8-seg 对比实验
+    ├── test_image/  test_gt/
+    ├── pred_color/  pred_yolo/
+    └── scripts/
+        ├── hsv_seg.py              # 颜色阈值分割 + 评估
+        ├── yolov8_seg.py           # YOLO 批量推理 + 评估
+        ├── yolo2mask.py            # YOLO txt → 掩码 PNG
+        └── compare_vis.py          # 并排对比可视化
 ```
 
 ## 快速开始
