@@ -40,7 +40,7 @@ formal_project/
 
 ## 快速开始
 
-### 1. 从 .bag 视频流直接推理（推荐）
+### 1. 从.bag 视频流直接推理
 
 ```bash
 python scripts/run_bag.py D:\path\to\wheelchock_lab.bag -o poses.csv
