@@ -207,3 +207,8 @@ python compare_vis.py   # 生成四合一对比图
 - `matplotlib` (可视化)
 - `tqdm` (进度条)
 - `albumentations` (数据增强)
+
+## 运行代码所需bag文件
+【超级会员V2】通过百度网盘分享的文件：杨丹
+链接：https://pan.baidu.com/s/1ee8A3F3b2x-Iv48PrjVdQQ?pwd=UANg 
+复制这段内容打开「百度网盘APP 即可获取」
