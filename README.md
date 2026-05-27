@@ -21,6 +21,7 @@ formal_project/
 │   │   └── dataset.yaml
 │   ├── wheelchock_dataset_augmented/  # 增强后的训练数据
 │   └── scripts/
+        ├── extract_from_bag_time.py #从bag中提取帧
 │       ├── offline_augmentation.py # albumentations 离线增强
 │       ├── paste_aug.py            # 负样本生成 (OpenCV)
 │       └── paste_image.py          # 负样本生成 (PIL)
@@ -66,7 +67,7 @@ python scripts/run_bag.py D:\path\to\wheelchock_lab.bag -o poses.csv
 
 ```bash
 # 先提取帧（可选，也可以直接用上面的 bag 模式）
-python extract_from_bag_time.py D:\path\to\wheelchock_lab.bag -o test_data
+python dataset/scripts/extract_from_bag_time.py D:\path\to\wheelchock_lab.bag -o test_data
 
 # 单帧
 python scripts/run_img.py --rgb test_data/rgb/frame_000247.png \
