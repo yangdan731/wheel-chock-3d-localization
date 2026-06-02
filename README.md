@@ -20,11 +20,11 @@ formal_project/
 │   │   ├── labels/train/  labels/val/
 │   │   └── dataset.yaml
 │   ├── wheelchock_dataset_augmented/  # 增强后的训练数据
+│   ├── paste_red                   # 红色物体贴图文件夹
 │   └── scripts/
-        ├── extract_from_bag_time.py #从bag中提取帧
+│       ├── extract_from_bag_time.py #从bag中提取帧
 │       ├── offline_augmentation.py # albumentations 离线增强
-│       ├── paste_aug.py            # 负样本生成 (OpenCV)
-│       └── paste_image.py          # 负样本生成 (PIL)
+│       └── paste_aug.py            # 红色物体贴图生成
 │
 ├── models/                         # 训练好的模型权重
 │   └── best_aug.pt
