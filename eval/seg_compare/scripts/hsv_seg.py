@@ -54,10 +54,10 @@ def evaluate_split(img_dir, gt_dir, out_dir, split_name):
     os.makedirs(out_dir, exist_ok=True)
     times = []
     metrics = []
-    for fname in os.listdir(img_dir):
-        if not fname.lower().endswith(('.png','.jpg','.jpeg')):
+    for frame in os.listdir(img_dir):
+        if not frame.lower().endswith(('.png','.jpg','.jpeg')):
             continue
-        img_path = os.path.join(img_dir, fname)
+        img_path = os.path.join(img_dir,frame)
         img = cv2.imread(img_path)
         if img is None:
             continue
@@ -65,9 +65,9 @@ def evaluate_split(img_dir, gt_dir, out_dir, split_name):
         mask = segment_color(img)
         elapsed = time.perf_counter() - start
         times.append(elapsed)
-        out_path = os.path.join(out_dir, fname)
+        out_path = os.path.join(out_dir,frame)
         cv2.imwrite(out_path, mask)
-        gt_path = os.path.join(gt_dir, fname)
+        gt_path = os.path.join(gt_dir,frame)
         if os.path.exists(gt_path):
             gt = cv2.imread(gt_path, cv2.IMREAD_GRAYSCALE)
             if gt is not None:

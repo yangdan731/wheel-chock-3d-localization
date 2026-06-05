@@ -31,7 +31,7 @@ def visualize_sample(dataset='test', idx=0):
     img_dir = os.path.join(base_dir, "test_image", dataset)
     gt_dir = os.path.join(base_dir, "test_gt", dataset)
     pred_color_dir = os.path.join(base_dir, "pred_color", dataset)
-    pred_yolo_dir = os.path.join(base_dir, "pred_yolo", dataset)
+    pred_yolo_dir = os.path.join(base_dir, "pred_yolo", "val")
 
     # 检查目录是否存在
     if not os.path.exists(img_dir):
@@ -60,7 +60,7 @@ def visualize_sample(dataset='test', idx=0):
     img_path = os.path.join(img_dir, img_name)
     gt_path = find_file_in_subdir(base_dir, os.path.join("test_gt", dataset), base_name, gt_extensions)
     pred_c_path = find_file_in_subdir(base_dir, os.path.join("pred_color", dataset), base_name, gt_extensions)
-    pred_y_path = find_file_in_subdir(base_dir, os.path.join("pred_yolo", dataset), base_name, gt_extensions)
+    pred_y_path = find_file_in_subdir(base_dir, os.path.join("pred_yolo", "val"), base_name, gt_extensions)
 
     # 读取文件
     img = cv2.imread(img_path)
